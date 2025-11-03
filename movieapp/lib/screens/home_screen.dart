@@ -1,6 +1,6 @@
 /// MAD201-01 Assignment 3
-/// Student Name: John Doe
-/// Student ID: 123456789
+/// Student Name: Ramandeep Singh
+/// Student ID: A00194321
 /// Home screen displaying scrollable list of movies.
 
 import 'package:flutter/material.dart';
