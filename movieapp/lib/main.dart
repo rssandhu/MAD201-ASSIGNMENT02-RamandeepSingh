@@ -1,122 +1,212 @@
+/// MAD201-01 Assignment 3
+/// Student Name: Ramandeep Singh
+/// Student ID: A00194321
+/// Main entry point and root widget of the Movie Explorer app.
+
 import 'package:flutter/material.dart';
+import 'package:movieapp/screens/detail_screen.dart';
+import 'screens/home_screen.dart';
+import 'screens/favorites_screen.dart';
+import 'screens/profile_screen.dart';
+import 'screens/about_screen.dart';
+import 'screens/contact_screen.dart';
+import 'models/movie.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MovieExplorerApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  // This widget is the root of your application.
+/// Root app widget with theme and home screen.
+class MovieExplorerApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Movie Explorer App',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        primarySwatch: Colors.deepPurple,
+        scaffoldBackgroundColor: Colors.grey[100],
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.deepPurple,
+          foregroundColor: Colors.white,
+          elevation: 4,
+        ),
+        iconTheme: IconThemeData(color: Colors.deepPurpleAccent),
+        bottomNavigationBarTheme: BottomNavigationBarThemeData(
+          selectedItemColor: Colors.deepPurple,
+          unselectedItemColor: Colors.grey,
+        ),
+        textTheme: TextTheme(
+          titleLarge: TextStyle(
+            fontWeight: FontWeight.bold,
+          ), // replaces headline6
+          bodyMedium: TextStyle(fontSize: 16),
+        ),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MainScaffold(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
+/// Main scaffold with bottom navigation and drawer menu.
+class MainScaffold extends StatefulWidget {
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  _MainScaffoldState createState() => _MainScaffoldState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _MainScaffoldState extends State<MainScaffold> {
+  int _selectedIndex = 0; // Currently selected tab index
 
-  void _incrementCounter() {
+  // Sample movie data stored locally in the app
+  final List<Movie> _movies = [
+    Movie(
+      title: 'Inception',
+      genre: 'Sci-Fi',
+      year: 2010,
+      description:
+          'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with deskt',
+      imagePath: 'assets/inception.png',
+    ),
+    Movie(
+      title: 'Black Panthor',
+      genre: 'Action',
+      year: 2010,
+      description:
+          'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with deskt',
+      imagePath: 'assets/download1.jfif',
+    ),
+    Movie(
+      title: 'Inception',
+      genre: 'Sci-Fi',
+      year: 2010,
+      description:
+          'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with deskt',
+      imagePath: 'assets/download2.jfif',
+    ),
+    // ... add more movies similarly
+  ];
+
+  /// Computes the list of favorite movies dynamically.
+  List<Movie> get _favoriteMovies =>
+      _movies.where((movie) => movie.isFavorite).toList();
+
+  /// Toggles the favorite state of the given movie and refreshes UI.
+  void _toggleFavorite(Movie movie) {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      movie.toggleFavorite();
     });
+  }
+
+  /// Opens the detail screen for the selected movie.
+  void _showDetail(Movie movie) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DetailScreen(
+          movie: movie,
+          onToggleFavorite: () {
+            setState(() {
+              movie.toggleFavorite();
+            });
+          },
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+    // Determine which screen to show based on selected tab
+    Widget bodyContent;
+    switch (_selectedIndex) {
+      case 0:
+        bodyContent = HomeScreen(
+          movies: _movies,
+          onToggleFavorite: _toggleFavorite,
+          onShowDetail: _showDetail,
+        );
+        break;
+      case 1:
+        bodyContent = FavoritesScreen(
+          favorites: _favoriteMovies,
+          onToggleFavorite: _toggleFavorite,
+          onShowDetail: _showDetail,
+        );
+        break;
+      case 2:
+        bodyContent = ProfileScreen();
+        break;
+      default:
+        bodyContent = HomeScreen(
+          movies: _movies,
+          onToggleFavorite: _toggleFavorite,
+          onShowDetail: _showDetail,
+        );
+    }
+
     return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+      appBar: AppBar(title: Text('Movie Explorer')),
+      // Navigation drawer accessible from app bar
+      drawer: Drawer(
+        child: ListView(
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(color: Colors.deepPurple),
+              child: Center(
+                child: Text(
+                  'Movie Explorer',
+                  style: TextStyle(color: Colors.white, fontSize: 24),
+                ),
+              ),
+            ),
+            // Drawer options for navigation
+            ListTile(
+              leading: Icon(Icons.home),
+              title: Text('Home'),
+              onTap: () {
+                setState(() => _selectedIndex = 0);
+                Navigator.pop(context); // Close drawer
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.info),
+              title: Text('About'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AboutScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.contact_mail),
+              title: Text('Contact Us'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ContactScreen()),
+                );
+              },
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      body: bodyContent,
+      // Bottom navigation bar for tab switching
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: (int idx) => setState(() => _selectedIndex = idx),
+        items: [
+          BottomNavigationBarItem(icon: Icon(Icons.movie), label: 'Home'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.favorite),
+            label: 'Favorites',
+          ),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+        ],
+      ),
     );
   }
 }
